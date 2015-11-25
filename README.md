@@ -6,8 +6,7 @@ Explorations in Machine Learning
 
 1. pip[3] install [--user --upgrade] jupyter
 1. Installing extensions 
-   1. clone https://github.com/ipython-contrib/IPython-notebook-extensions to a directory,
-      whose fullpath is say <ipy-ext-dir>
+   1. clone https://github.com/ipython-contrib/IPython-notebook-extensions to <ipy-ext-dir>
    1. go to (ipython-extensions)[https://github.com/ipython-contrib/IPython-notebook-extensions/wiki/Home-4.x-(Jupyter)]
    1. scroll down to the part about finding nbextensions directory and find the path of the directory.
    1. Say <jup_data_dir> is the fullpath to it
