@@ -11,6 +11,7 @@ Explorations in Machine Learning
    1. scroll down to the part about finding nbextensions directory and find the path of the directory.
    1. Say \<jup_data_dir\> is the fullpath to it
       * On ubuntu, it might be "~/.local/share/jupyter/" if jupyter was installed using the --user switch of pip install
+      * On OSX, it might be "~/Library/Jupyter/extensions"
    1. cd <ipy-ext-dir>
    1. cp -R nbextensions/ \<jup_data_dir\>/
    1. cp -R extensions/   \<jup_data_dir\>/
