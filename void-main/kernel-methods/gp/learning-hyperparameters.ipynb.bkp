@@ -46,12 +46,13 @@
     "\\newcommand{\\E}[1]{\\mathbb{E}\\left[ #1 \\right]}\n",
     "\\newcommand{\\expb}[1]{\\exp\\left\\{#1\\right\\}} \n",
     "\\newcommand{\\EXP}[1]{\\exp\\left\\{#1\\right\\}} \n",
-    "\\newcommand{\\frachalf}[1]{\\frac{#1}{2}}\n",
-    "\\newcommand{\\fracone}[1]{\\frac{1}{#1}}\n",
-    "\\newcommand{\\fracrec}[1]{\\frac{1}{#1}}\n",
+    "\\newcommand{\\frachalf}[1]{\\frac{#1}{2}~}\n",
+    "\\newcommand{\\fracone}[1]{\\frac{1}{#1}~}\n",
+    "\\newcommand{\\fracrec}[1]{\\frac{1}{#1}~}\n",
     "\\newcommand{\\half}{\\fracone{2}}\n",
     "\\newcommand{\\H}[1]{\\mathbb{H}\\left[#1\\right]}\n",
-    "\\newcommand{\\Int}[2]{\\displaystyle \\int_{#1}^{#2}}\n",
+    "\\newcommand{\\Int}[2]{\\displaystyle \\int_{#1}^{#2}~}\n",
+    "\\newcommand{\\intinfinf}{\\Int{-\\infty}{\\infty}}\n",
     "\\newcommand{\\inv}[1]{#1^{-1}}\n",
     "\\newcommand{\\invp}[1]{\\left({#1}\\right)^{-1}}\n",
     "\\newcommand{\\KL}[2]{\\text{KL}\\left(#1 \\Vert #2\\right)}\n",
@@ -149,6 +150,7 @@
     "alphabet shortcuts\n",
     "$\n",
     "\\newcommand{\\ab}{\\mathbf{a}}\n",
+    "\\newcommand{\\at}{\\ab^T}\n",
     "\\newcommand{\\Ab}{\\mathbf{A}}\n",
     "\\newcommand{\\At}{\\Ab^T}\n",
     "\\newcommand{\\Ai}{\\inv{\\Ab}}\n",
@@ -158,12 +160,15 @@
     "\\newcommand{\\Bb}{\\mathbf{B}}\n",
     "\\newcommand{\\Bt}{\\Bb^T}\n",
     "\\newcommand{\\Cb}{\\mathbf{C}}\n",
+    "\\newcommand{\\Cn}{\\Cb_{N}}\n",
     "\\newcommand{\\Db}{\\mathbf{D}}\n",
     "\\newcommand{\\fb}{\\mathbf{f}}\n",
     "\\newcommand{\\fp}{f^{\\prime}}\n",
     "\\newcommand{\\Hb}{\\mathbf{H}}\n",
     "\\newcommand{\\hx}{h(\\xb)}\n",
     "\\newcommand{\\Jb}{\\mathbf{J}}\n",
+    "\\newcommand{\\kb}{\\mathbf{k}}\n",
+    "\\newcommand{\\kt}{\\kb^T}\n",
     "\\newcommand{\\Kb}{\\mathbf{K}}\n",
     "\\newcommand{\\Lb}{\\mathbf{L}}\n",
     "\\newcommand{\\Lt}{\\Lb^T}\n",
@@ -180,6 +185,8 @@
     "\\newcommand{\\sb}{\\mathbf{s}}\n",
     "\\newcommand{\\Sb}{\\mathbf{S}}\n",
     "\\newcommand{\\tb}{\\mathbf{t}}\n",
+    "\\newcommand{\\tbnn}{\\tb_{N}}\n",
+    "\\newcommand{\\tbnp}{\\tb_{N+1}}\n",
     "\\newcommand{\\tt}{\\tb^T}\n",
     "\\newcommand{\\Tb}{\\mathbf{T}}\n",
     "\\newcommand{\\Tt}{\\Tb^T}\n",
@@ -208,6 +215,7 @@
     "\\newcommand{\\xbp}{\\xb^{\\prime}}\n",
     "\\newcommand{\\xbm}{\\xb_m}\n",
     "\\newcommand{\\xbn}{\\xb_n}\n",
+    "\\newcommand{\\xbnp}{\\xb_{N+1}}\n",
     "\\newcommand{\\xab}{\\mathbf{x_a}}\n",
     "\\newcommand{\\xabt}{\\mathbf{x_a}^T}\n",
     "\\newcommand{\\xbb}{\\mathbf{x_b}}\n",
@@ -303,82 +311,43 @@
    "cell_type": "markdown",
    "metadata": {},
    "source": [
-    "# Motivation"
-   ]
-  },
-  {
-   "cell_type": "markdown",
-   "metadata": {},
-   "source": [
-    "from [wiki](https://en.wikipedia.org/wiki/Laplace%27s_method)\n",
+    "Rather than fixing the covariance, the parameters for the covariance can be inferred from the data.\n",
     "\n",
-    "![yo](https://upload.wikimedia.org/wikipedia/commons/thumb/b/bd/Laplaces_method.svg/300px-Laplaces_method.svg.png \"1\")"
-   ]
-  },
-  {
-   "cell_type": "markdown",
-   "metadata": {},
-   "source": [
-    "* The red curve is $f(x) = sin(x)/x$\n",
-    "* blue curve is $\\exp{Mf(x)}$\n",
-    "* for the top figure, M=0.5 and M=2 for bottom figure\n",
+    "These parameters govern things like\n",
+    "* length-scale of the correlations\n",
+    "* precision of the noise\n",
     "\n",
-    "It can be seen that as M increases, the approximation becomes better."
+    "and as such correspond to the hyperparametrs of the standard parametric model\n"
    ]
   },
   {
    "cell_type": "markdown",
    "metadata": {},
    "source": [
-    "# Assumptions\n",
+    "We need to evaluate the likelihood function $p(\\tb \\mid \\thetab)$ where $\\thetab$ denotes the hyperparameters of the GP model.  \n",
     "\n",
-    "1. $x_0$ is not an endpoint of the interval of integration\n",
-    "1. Values ƒ(x) cannot be very close to ƒ($x_0$) unless x is close to $x_0$\n",
-    "1. Second derivative $f''(x_{0})<0$."
-   ]
-  },
-  {
-   "cell_type": "markdown",
-   "metadata": {},
-   "source": [
-    "# Derivation"
-   ]
-  },
-  {
-   "cell_type": "markdown",
-   "metadata": {},
-   "source": [
-    "Taylor's theorem expansion of a function f(x) around the point $x_0$ is \n",
-    "$$\n",
-    "\\arrthree{\n",
-    "f(x) &= f(x_{0}) + f'(x_{0})(x-x_{0}) + \n",
-    "\\\\\n",
-    "& +\\frac12 f''(x_{0})(x-x_{0})^{2}+R\n",
-    "}$$\n",
-    "where $R=O\\left((x-x_{0})^{3}\\right)$."
-   ]
-  },
-  {
-   "cell_type": "markdown",
-   "metadata": {},
-   "source": [
-    "## method 1\n",
-    "[from wiki]\n",
+    "simplest approach is to make a point estimate of $\\thetab$ by maximizing the log likelihood function.\n",
     "\n",
-    "We can expand ƒ(x) around $x_0$ by Taylor's theorem.\n",
-    "$$\n",
-    "f(x) \\approx f(x_{0}) -\n",
-    "\\half \\left|f''(x_{0})\\right|(x-x_{0})^{2}\n",
-    "$$\n",
-    "Note that there is no first order term since it vanishes."
+    "since $\\thetab$ represents the set of hyperparameters of the regressoin problem, this is analogous to type 2 ML for linear regression.\n",
+    "\n",
+    "Maximizatio of the log likelihood can be done using efficient gradient-based optimization algos such as conjugate gradients"
    ]
   },
   {
    "cell_type": "markdown",
    "metadata": {},
    "source": [
+    "Since the mean of the marginal is \n",
+    "$\\Nl{t}{\\Ab \\mub + \\bb}{\\Lbi + \\Ab \\Li \\At}$, we have\n",
+    "\n",
     "$$\n",
-    "\\int _{a}^{b}\\!e^{Mf(x)}\\,dx\\approx e^{Mf(x_{0})}\\int _{a}^{b}e^{-M|f''(x_{0})|(x-x_{0})^{2}/2}\\,dx\n",
+    "p(\\tb) = \\Nl{\\tb}{\\zerob}{\\inv{\\beta}\\I_N + \\Kb}\n",
+    "= \\Nl{\\tb}{\\zerob}{\\Cb}\n",
+    "$$\n",
+    "\n",
+    "where the covariance is\n",
+    "$$\n",
+    "\\Cb(\\xbn, \\xbm) = \\inv{\\beta} \\delta_{nm} + \\kappa(\\xbn, \\xbm)\n",
     "$$"
    ]
   },
@@ -386,12 +355,13 @@
    "cell_type": "markdown",
    "metadata": {},
    "source": [
-    "This is a [Gaussian integral](https://en.wikipedia.org/wiki/Gaussian_integral#The_integral_of_a_Gaussian_function), whose value is given by\n",
+    "the log likelihood is then\n",
     "$$\n",
-    "\\int_{-\\infty }^{\\infty }\n",
-    "e^{-a(x+b)^{2}} \\, dx\n",
+    "\\ln p(\\tb \\mid \\thetab)\n",
     "=\n",
-    "\\sqrt{\\frac{\\pi}{a}}.\n",
+    "-\\half \\ln \\Mod{\\Cn}\n",
+    "-\\half \\tt \\inv{\\Cn} \\tb\n",
+    "-\\frachalf{N} \\ln(2\\pi)\n",
     "$$"
    ]
   },
@@ -399,128 +369,23 @@
    "cell_type": "markdown",
    "metadata": {},
    "source": [
-    "$$\n",
-    "\\int_{a}^{b}\\!e^{Mf(x)}\\,dx\n",
-    "\\approx \n",
-    "\\sqrt{\n",
-    "  \\frac{2\\pi}\n",
-    "       {M \\left| f''(x_{0}) \\right| }\n",
-    "}\n",
-    "~e^{Mf(x_{0})}\n",
-    "\\text{ as }\n",
-    "M \\to \\infty .\\,\n",
-    "$$"
-   ]
-  },
-  {
-   "cell_type": "markdown",
-   "metadata": {},
-   "source": [
-    "## One Dimension - method 2\n",
+    "* the first term is the complexity penalty term\n",
+    "* The second term a negative quadratic, and plays the role of a data-fit measure\n",
+    "* The third term is a log normalization term, independent of the data, and not very interesting\n",
     "\n",
-    "from prml\n",
-    "\n",
-    "Consider the function \n",
-    "$$\n",
-    "p(z) = \n",
-    "\\frac1{Z}\n",
-    "f(z)\n",
-    "$$\n",
-    "Here, Z is the normalization coefficient given by\n",
-    "$$\n",
-    "Z = \\int f(z) ~dz\n",
-    "$$"
+    "from \\citeme{Gaussian Processes in Machine Learning - Carl Edward Rasmussen}"
    ]
   },
   {
    "cell_type": "markdown",
    "metadata": {},
    "source": [
-    "To find the Laplace approximation, we need to find the mode of p(z), which can be obtained by setting $\\diffn{p}{z} = 0$"
-   ]
-  },
-  {
-   "cell_type": "markdown",
-   "metadata": {},
-   "source": [
-    "The taylor approximation around the mode $z_0$ is given by\n",
+    "remember\n",
     "$$\n",
     "\\arrthree{\n",
-    "f(z) \n",
-    "&= f(z_0) + (z-z_0)f^{\\prime}(z) \\mid_{z=z_0} + \\frac12 (z-z_0)^2 f^{\\prime\\prime}(z)\n",
+    "\\Partial{}{x} \\Mod{\\Ab} &= \\trace{ \\inv{\\Ab} \\Partial{\\Ab}{x}}\n",
     "\\\\\n",
-    "&= f(z_0) + \\frac12 (z-z_0)^2 f^{\\prime\\prime}(z)\n",
-    "}\n",
-    "$$\n",
-    "since $z_0$ is local max, the first derivative vanishes."
-   ]
-  },
-  {
-   "cell_type": "markdown",
-   "metadata": {},
-   "source": [
-    "$$\n",
-    "\\arrthree{\n",
-    "\\ln f(z)\n",
-    "&= \\ln f(z_0) + \\frac12 (z-z_0)^2 \\frac{d^2}{dz^2} \\ln f(z) \\mid_{z=z_0}\n",
-    "\\\\\n",
-    "&= \\ln f(z_0) - \\frac12 A ~(z-z_0)^2 \n",
-    "}\n",
-    "$$\n",
-    "where\n",
-    "$$\n",
-    "A = - \\frac{d^2}{dz^2} \\ln f(z) \\mid_{z=z_0}\n",
-    "$$"
-   ]
-  },
-  {
-   "cell_type": "markdown",
-   "metadata": {},
-   "source": [
-    "Taking exponentials, we have\n",
-    "$$\n",
-    "f(z) = f(z_0) \\expb{- \\frac12 A ~(z-z_0)^2}\n",
-    "$$\n",
-    "\n",
-    "If A gives the precision of a gaussian with mean $z_0$, then the gaussian is given by\n",
-    "$$\n",
-    "q(z) = \\left(\\frac{A}{2\\pi}\\right)^{1/2} \\expb{- \\frac12 A ~(z-z_0)^2}\n",
-    "$$\n",
-    "\n",
-    "It should be noted that since $z_0$ is the local maxima, A is positive definite. "
-   ]
-  },
-  {
-   "cell_type": "markdown",
-   "metadata": {},
-   "source": [
-    "# Multi dimensional\n",
-    "from prml"
-   ]
-  },
-  {
-   "cell_type": "markdown",
-   "metadata": {},
-   "source": [
-    "For M-D, we have\n",
-    "$$\n",
-    "\\ln f(\\zb) \\simeq \\ln f(\\zb_0) - \\frac12 (\\zb-\\zb_0)^T \\Ab(\\zb-\\zb_0)\n",
-    "$$\n",
-    "where\n",
-    "$$\n",
-    "A = -\\nabla \\nabla f(\\zb) \\mid_{\\zb=\\zb_0}\n",
-    "$$"
-   ]
-  },
-  {
-   "cell_type": "markdown",
-   "metadata": {},
-   "source": [
-    "Taking exponentials\n",
-    "$$\n",
-    "\\arrthree{\n",
-    "f(\\zb) &\\simeq\n",
-    "f(\\zb_0) \\expb{- \\frac12 (\\zb-\\zb_0)^T \\Ab(\\zb-\\zb_0)}\n",
+    "\\Partial{}{x} \\inv{\\Ab} &= -\\inv{\\Ab} \\Partial{\\Ab}{x} \\inv{\\Ab}\n",
     "}\n",
     "$$"
    ]
@@ -529,17 +394,12 @@
    "cell_type": "markdown",
    "metadata": {},
    "source": [
-    "The distribution q(**z**) is proportional to f(**z**).  \n",
-    "The normalization coef is simply that of Gaussian's.  \n",
-    "Tha is\n",
+    "Thus\n",
     "$$\n",
-    "\\arrthree{\n",
-    "q(\\zb) &=\n",
-    "\\frac{\\mid A \\mid^{1/2}}{(2\\pi)^{M/2}}\n",
-    "\\expb{- \\frac12 (\\zb-\\zb_0)^T \\Ab(\\zb-\\zb_0)}\n",
-    "\\\\ &=\n",
-    "\\mathcal{N}(\\zb \\mid \\zb_0, A^{-1})\n",
-    "}\n",
+    "\\Partial{}{\\theta_i} \\ln p(\\tb \\mid \\thetab)\n",
+    "=\n",
+    "-\\half \\trace{\\inv{\\Cn} \\Partial{\\Cn}{\\theta_i}}\n",
+    "+ \\half \\tt \\inv{\\Cn} \\Partial{\\Cn}{\\theta_i} \\inv{\\Cn} \\tb\n",
     "$$"
    ]
   },
@@ -547,300 +407,93 @@
    "cell_type": "markdown",
    "metadata": {},
    "source": [
-    "The Gaussian is well defined if the precision matrix, **A** is positive definite.\n",
-    "\n",
-    "This means that the stationary point $\\zb_0$ is a local maxima, not a local minima or a saddle point"
+    "Because $\\ln p(\\tb \\mid \\thetab)$ will in general be a nonconvex function, it can have multiple maxima."
    ]
   },
   {
    "cell_type": "markdown",
    "metadata": {},
    "source": [
-    "# problems"
+    "It is straightforward to introduce a prior over **θ** and to maximize the log posterior using gradient-based methods. In a fully Bayesian treatment, we need to evaluate marginals over **θ** weighted by the product of the prior p(**θ**) and the likelihood function p(**t**|**θ**). In general, however, exact marginalization will be intractable, and we\n",
+    "must resort to approximations.\n",
+    "\n"
    ]
   },
   {
    "cell_type": "markdown",
    "metadata": {},
    "source": [
-    "1. have to fit multiple approximations for multimodal fuckers\n",
-    "1. applicable only to real variables (since it is based on Gaussian)\n",
-    "1. very myopic, captures only the local not the global properties"
+    "# Example"
    ]
   },
   {
    "cell_type": "markdown",
    "metadata": {},
    "source": [
-    "Examples\n",
-    "==========\n",
-    "\n",
-    "Stirling's approximation\n",
-    "-------------------------\n",
-    "\n",
-    "$\\ln(N!) = N\\ln(N) - B +O(\\ln(N))$  \n",
-    "that is  \n",
-    "$\n",
-    "N!\\approx {\\sqrt {2\\pi N}} ~N^{N} ~e^{-N}\\,\n",
-    "$\n",
-    "\n",
-    "From the definition of the Gamma function, we have\n",
-    "$$\n",
-    "N!=\\Gamma (N+1)=\\int _{0}^{\\infty }e^{-x}x^{N}\\,dx.\n",
-    "$$\n",
-    "Now we change variables, letting x=Nz so that dx=N dz.\n",
-    "\n",
-    "Plug these values back in to obtain\n",
-    "\n",
-    "$${\\begin{aligned}N!&=\\int _{0}^{\\infty }e^{-Nz}\\left(Nz\\right)^{N}N\\,dz\\\\&=N^{N+1}\\int _{0}^{\\infty }e^{-Nz}z^{N}\\,dz\\\\&=N^{N+1}\\int _{0}^{\\infty }e^{-Nz}e^{N\\ln z}\\,dz\\\\&=N^{N+1}\\int _{0}^{\\infty }e^{N(\\ln z-z)}\\,dz.\\end{aligned}}$$\n",
-    "\n",
-    "This integral has the form necessary for Laplace's method with $f\\left(z\\right)=\\ln {z}-z$ which is twice-differentiable:\n",
-    "\n",
-    "$$f'(z)={\\frac {1}{z}}-1,\\,\n",
-    "f''(z)=-{\\frac {1}{z^{2}}}.\\,\n",
-    "$$\n",
-    "The maximum of ƒ(z) lies at $z_0 = 1$, and the second derivative of ƒ(z) has the value −1 at this point. Therefore, we obtain\n",
-    "\n",
-    "$$\n",
-    "N!\\approx \n",
-    "N^{N+1}\n",
-    "{\\sqrt {\\frac {2\\pi }{N}}}e^{-N}\n",
-    "={\\sqrt {2\\pi N}} ~N^{N} ~e^{-N}.\\,$$"
+    "Consider the rbf kernel with just the length-scale parameter"
    ]
   },
   {
    "cell_type": "markdown",
    "metadata": {},
-   "source": [
-    "# Model comparison and BIC"
-   ]
-  },
-  {
-   "cell_type": "markdown",
-   "metadata": {},
-   "source": [
-    "We can also get an approximation to the normalization constant Z."
-   ]
-  },
-  {
-   "cell_type": "markdown",
-   "metadata": {},
-   "source": [
-    "$$\n",
-    "\\arrthree{\n",
-    "Z &= \\int f(\\zb) ~d\\zb\n",
-    "\\\\ &\\simeq\n",
-    "f(\\zb_0) ~\\int\n",
-    "\\expb{-\\half (\\zb - \\zb_0)^T \\Ab (\\zb - \\zb_0)} ~d\\zb\n",
-    "\\\\ &=\n",
-    "f(\\zb_0) \\frac{(2\\pi)^{M/2}}{\\Mod{\\Ab}^{1/2}}\n",
-    "}\n",
-    "$$"
-   ]
-  },
-  {
-   "cell_type": "markdown",
-   "metadata": {},
-   "source": [
-    "* COnsider a data set $\\D$ and a set of models $\\Brace{\\M_i}$ having parameters $\\Brace{\\thetab_i}$\n",
-    "* for each model, we define a likelihood $p(\\D \\mid \\thetab_i, \\M_i)$\n",
-    "* introducing prior $p(\\thetab_i \\mid \\M_i)$\n",
-    "* omitting the dependence on $\\M_i$ to keep things uncluttered"
-   ]
-  },
-  {
-   "cell_type": "markdown",
-   "metadata": {},
-   "source": [
-    "From Bayes theorem, the model evidence is given by\n",
-    "$$\n",
-    "p(\\D) = \\int p(\\D \\mid \\thetab) ~p(\\theta) ~d\\thetab\n",
-    "$$"
-   ]
-  },
-  {
-   "cell_type": "markdown",
-   "metadata": {},
-   "source": [
-    "Now we set\n",
-    "$$\n",
-    "\\arrthree{\n",
-    "f(\\thetab) &= p(\\D \\mid \\thetab) ~p(\\thetab) \\\\\n",
-    "Z &= \\int f(\\thetab) ~d\\thetab = p(\\D)\n",
-    "}\n",
-    "$$"
-   ]
-  },
-  {
-   "cell_type": "markdown",
-   "metadata": {},
-   "source": [
-    "Hence\n",
-    "$$\n",
-    "\\arrthree{\n",
-    "\\ln p(\\D)  &\\simeq\n",
-    "f(\\map{\\thetab})\n",
-    "+ \\frachalf{M} \\ln(2\\pi) - \\half \\ln \\Mod{\\Ab}\n",
-    "\\\\ &=\n",
-    "\\ln p(\\D \\mid \\map{\\theta})\n",
-    "+\n",
-    "\\underbrace{\n",
-    "\\ln p(\\map{\\thetab})\n",
-    "+ \\frachalf{M} \\ln(2\\pi) - \\half \\ln \\Mod{\\Ab}\n",
-    "}_{\\color{green}{\\text{Occam factor}}}\n",
-    "}\n",
-    "$$\n",
-    "\n",
-    "here $\\map{\\thetab}$ is the value of $\\thetab$ at the mode of the distribution.  \n",
-    "**A** is the Hessian matrix of second derivatives of the negative log posterior\n",
-    "$$\n",
-    "\\arrthree{\n",
-    "\\Ab &=\n",
-    "- \\nabla \\nabla \\ln p(\\D \\mid \\map{\\thetab}) p(\\map{\\thetab})\n",
-    "\\\\ &=\n",
-    "- \\nabla \\nabla \\ln p(\\map{\\thetab} \\mid \\D)p(\\D)\n",
-    "\\\\ &=\n",
-    "- \\nabla \\nabla \\ln p(\\map{\\thetab} \\mid \\D)- \\nabla \\nabla \\ln p(\\D)\n",
-    "\\\\ &=\n",
-    "- \\nabla \\nabla \\ln p(\\map{\\thetab} \\mid \\D)\n",
-    "}\n",
-    "$$"
-   ]
-  },
-  {
-   "cell_type": "markdown",
-   "metadata": {},
-   "source": [
-    "The Occam factor penalizes the model complexity"
-   ]
-  },
-  {
-   "cell_type": "markdown",
-   "metadata": {},
-   "source": [
-    "$$\n",
-    "\\arrthree{\n",
-    "\\Ab &=\n",
-    "- \\nabla \\nabla \\ln p(\\D \\mid \\map{\\thetab}) p(\\map{\\thetab})\n",
-    "\\\\ &=\n",
-    "- \\nabla \\nabla \\ln p(\\D \\mid \\map{\\thetab})\n",
-    "- \\nabla \\nabla \\ln p(\\map{\\thetab})\n",
-    "\\\\ &=\n",
-    "\\Hb - \\nabla \\nabla \\ln p(\\map{\\thetab})\n",
-    "}\n",
-    "$$"
-   ]
-  },
-  {
-   "cell_type": "markdown",
-   "metadata": {},
-   "source": [
-    "If $p(\\map{\\thetab})$ is Gaussian, then\n",
-    "$$\n",
-    "\\arrthree{\n",
-    "\\nabla \\nabla \\ln p(\\map{\\thetab}) &=\n",
-    "\\nabla \\nabla (\\wb - \\wb_0)^T \\Sigmai (\\wb - \\wb_0)\n",
-    "\\\\ &=\n",
-    "- \\Sigmai\n",
-    "}\n",
-    "$$"
-   ]
-  },
-  {
-   "cell_type": "markdown",
-   "metadata": {},
-   "source": [
-    "Hence\n",
-    "$$\n",
-    "\\Ab = \\Hb + \\Sigmai\n",
-    "$$\n",
-    "\n",
-    "That is\n",
-    "$$\n",
-    "\\ln \\Mod{\\Ab} = \\ln \\Mod{\\Hb} + O(1) \\simeq \\ln \\Mod{\\Hb}\n",
-    "$$"
-   ]
-  },
-  {
-   "cell_type": "markdown",
-   "metadata": {},
-   "source": [
-    "Now, if we can assume iid, then\n",
-    "$$\n",
-    "\\arrthree{\n",
-    "\\Hb &=\n",
-    "- \\nabla \\nabla \\ln p(\\D \\mid \\map{\\thetab})\n",
-    "\\\\ &=\n",
-    "- \\nabla \\nabla \\displaystyle \\sum_n \n",
-    "\\ln p(\\xb_n \\mid \\map{\\thetab})\n",
-    "\\\\ &=\n",
-    "\\displaystyle \\sum_n \\Hb_n\n",
-    "\\\\ &=\n",
-    "N \\hat{\\Hb}\n",
-    "}\n",
-    "$$\n",
-    "where\n",
-    "$$\n",
-    "\\arrthree{\n",
-    "\\Hb_n &= \\ln p(\\xb_n \\mid \\map{\\thetab}) \\\\\n",
-    "\\hat{\\Hb} &= \\fracrec{N} \\displaystyle \\sum_n \\Hb_n\n",
-    "}\n",
-    "$$"
-   ]
-  },
-  {
-   "cell_type": "markdown",
-   "metadata": {},
-   "source": [
-    "Hence\n",
-    "$$\n",
-    "\\arrthree{\n",
-    "\\ln \\Mod{\\Ab} &=\n",
-    "\\ln \\Mod{N \\hat{\\Hb}}\n",
-    "\\\\ &=\n",
-    "\\ln N^M \\Mod{\\hat{\\Hb}}\n",
-    "\\\\ &=\n",
-    "M \\ln N + O(1)\n",
-    "\\\\ &\\simeq\n",
-    "M \\ln N\n",
-    "}\n",
-    "$$"
-   ]
-  },
-  {
-   "cell_type": "markdown",
-   "metadata": {},
-   "source": [
-    "Hence\n",
-    "$$\n",
-    "\\ln p(\\D) \\simeq\n",
-    "\\ln p(\\D \\mid \\map{\\thetab}) - \\half M \\ln N\n",
-    "$$"
-   ]
-  },
-  {
-   "cell_type": "code",
-   "execution_count": null,
-   "metadata": {
-    "collapsed": true
-   },
-   "outputs": [],
    "source": []
   },
   {
    "cell_type": "markdown",
    "metadata": {},
-   "source": [
-    "This is calle the fucking **Bayesian Information Criterion**\n",
-    "or **Schwarz criterion**"
-   ]
+   "source": []
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": []
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": []
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": []
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": []
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": []
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": []
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": []
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": []
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": []
   }
  ],
  "metadata": {
-  "hide_input": true,
+  "hide_input": false,
   "kernelspec": {
    "display_name": "Python 3",
-   "language": "python3",
+   "language": "python",
    "name": "python3"
   },
   "language_info": {
