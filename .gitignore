@@ -63,3 +63,11 @@ docs/_build/
 target/
 
 .DS_Store
+
+# profiler outputs
+*.lprof
+
+#others
+*.mp4
+*.html
+*.png
