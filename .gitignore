@@ -67,7 +67,9 @@ target/
 # profiler outputs
 *.lprof
 
-#others
-*.mp4
 *.html
+
+#multimedia
+*.mp4
 *.png
+*.svg
