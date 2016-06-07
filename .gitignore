@@ -73,3 +73,8 @@ target/
 *.mp4
 *.png
 *.svg
+
+#datasets
+*.data
+*.DOCUMENTATION
+*.names
